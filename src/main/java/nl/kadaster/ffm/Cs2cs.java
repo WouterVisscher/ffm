@@ -24,19 +24,18 @@ public class Cs2cs {
                 JAVA_INT.withName("patch"));
 
         System.load("/usr/local/lib/libproj.so");
+        SymbolLookup symbolLookup = SymbolLookup.loaderLookup();
+
+        final var proj_info_addr = symbolLookup.find("proj_info")
+                .orElseThrow(() -> new Exception("Could not find verion"));
+
+        final var proj_info_sig = FunctionDescriptor.of(PJ_INFO);
+        final var test_proj_info = Linker.nativeLinker().downcallHandle(proj_info_addr, proj_info_sig);
 
         try (Arena offHeap = Arena.ofConfined()) {
-
-            Linker linker = Linker.nativeLinker();
-            SymbolLookup proj = SymbolLookup.libraryLookup("libproj.so", offHeap);
-            MemorySegment proj_info_addr = proj.find("proj_info").get();
-            FunctionDescriptor proj_info_sig = FunctionDescriptor.of(PJ_INFO);
-
-            MethodHandle test_proj_info = linker.downcallHandle(proj_info_addr,
-                    proj_info_sig);
-
             SegmentAllocator allocator = SegmentAllocator.slicingAllocator(offHeap.allocate(100));
-            MemorySegment result = (MemorySegment) test_proj_info.invokeWithArguments(allocator);
+
+            MemorySegment result = (MemorySegment) test_proj_info.invoke(allocator);
             result = result.reinterpret(PJ_INFO.byteSize());
 
             VarHandle major = PJ_INFO.varHandle(PathElement.groupElement("major"));
@@ -45,9 +44,9 @@ public class Cs2cs {
 
             System.out.println(result);
 
-            System.out.println(major.get(result));
-            System.out.println(minor.get(result));
-            System.out.println(patch.get(result));
+            // System.out.println(major.get(result));
+            // System.out.println(minor.get(result));
+            // System.out.println(patch.get(result));
         }
     }
 }
