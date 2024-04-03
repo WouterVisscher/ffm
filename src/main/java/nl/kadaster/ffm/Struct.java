@@ -21,7 +21,7 @@ public class Struct {
                                 JAVA_INT.withName("minor"),
                                 JAVA_INT.withName("patch"));
 
-                System.load("/home/wouter/work/tmp/ffm/cs2cs-ffm/src/main/c/libstruct.so");
+                System.load("/home/wouter/work/repo/github.com/WouterVisscher/ffm/src/main/c/libstruct.so");
                 SymbolLookup symbolLookup = SymbolLookup.loaderLookup();
 
                 final var versionSymbol = symbolLookup.find("verion")

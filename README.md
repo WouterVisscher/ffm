@@ -3,8 +3,10 @@
 ## C
 
 ```sh
-gcc proj_version.c -lproj -o proj_version
+gcc proj_version.cpp -lproj -o proj_version -lstdc++
 ./proj_version
+
+gcc -shared -o libprojversion.so -fPIC proj_version.cpp -lproj -lstdc++
 ```
 
 build lib

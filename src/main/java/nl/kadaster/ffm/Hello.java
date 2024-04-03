@@ -8,7 +8,7 @@ import java.lang.foreign.SymbolLookup;
 public class Hello {
     public static void main(String[] args) throws Throwable {
 
-        System.load("/home/wouter/work/tmp/ffm/cs2cs-ffm/src/main/c/libhello.so");
+        System.load("/home/wouter/work/repo/github.com/WouterVisscher/ffm/src/main/c/libhello.so");
         SymbolLookup symbolLookup = SymbolLookup.loaderLookup();
 
         final var helloSymbol = symbolLookup.find("hello")
