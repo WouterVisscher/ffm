@@ -3,6 +3,7 @@ package nl.kadaster.ffm;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
 
 import java.lang.foreign.AddressLayout;
 import java.lang.foreign.Arena;
@@ -10,6 +11,7 @@ import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.Linker;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.SequenceLayout;
 import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
 import java.lang.invoke.MethodHandle;
@@ -28,7 +30,7 @@ public class Hello {
         
         final var gethelloSymbol = symbolLookup.find("get_hello")
                 .orElseThrow(() -> new Exception("Could not find hello"));
-        final var gethelloSig = FunctionDescriptor.of(JAVA_BYTE);
+        final var gethelloSig = FunctionDescriptor.of(MemoryLayout.sequenceLayout(32, JAVA_BYTE));
         final var gethello = Linker.nativeLinker().downcallHandle(gethelloSymbol, gethelloSig);                
 
         try (Arena offHeap = Arena.ofConfined()) {
@@ -40,10 +42,14 @@ public class Hello {
             // str = (MemorySegment) gethello.invoke();
 
             // MethodHandle methodHandle = str.sliceHandle();
-            str = (MemorySegment) gethello.invoke();
-            System.out.println(str);
-            byte[] namedData = str.toArray(ValueLayout.JAVA_BYTE);
-            var out = new String(namedData);
+            // MemorySegment buffer = offHeap.allocate(64);
+    
+
+            byte buffer = (byte) gethello.invokeWithArguments();
+            System.out.println(buffer);
+     
+            byte [] bytes = ((MemorySegment)str).toArray(ValueLayout.JAVA_BYTE);
+            var out = new String(bytes);
             System.out.println(out);
 
             // System.out.println(str.getUtf8String(0));
