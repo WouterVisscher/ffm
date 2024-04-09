@@ -36,14 +36,14 @@ public class Hello {
 
         try (Arena offHeap = Arena.ofConfined()) {
             // invoke hello
-            hello.invoke();
+            // hello.invoke();
             
-            var layOut  = ValueLayout.JAVA_BYTE;
+            var layOut  = MemoryLayout.sequenceLayout(24, JAVA_BYTE); //ValueLayout.JAVA_BYTE;
             // MemorySegment str = (MemorySegment) offHeap.allocate(layOut);
 
             // str = (MemorySegment) 
             var result = gethello.invoke();
-            System.out.println(result);
+            // System.out.println(result);
             result = ((MemorySegment) result).reinterpret(layOut.byteSize());
             
 
