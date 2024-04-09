@@ -1,10 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
 
-void hello()
-{
-    printf("Hello World!\n");
-}
 
 const char * get_hello(void)
 {
@@ -13,6 +9,11 @@ const char * get_hello(void)
     // str[1] = 'w';
     // str[2] = '\0';
 
-    printf("in get_hello");
-    return "my str from get_hello";
+    printf("in func() get_hello\n");
+    return "Zmy str from get_hello\n";
+}
+
+void hello()
+{
+    printf("enter in hello(): %s\n", get_hello());
 }

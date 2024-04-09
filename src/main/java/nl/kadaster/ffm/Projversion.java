@@ -85,6 +85,6 @@ public class Projversion {
                 MethodHandle methodHandle = groupLayout.sliceHandle(MemoryLayout.PathElement.groupElement(name));
                 MemorySegment namedMemorySegment = (MemorySegment) methodHandle.invokeExact(memorySegment);
                 byte[] namedData = namedMemorySegment.toArray(JAVA_BYTE);
-                return new String((new String(namedData)).getBytes(StandardCharsets.UTF_16BE));
+                return new String(namedData);
             }
 }

@@ -4,6 +4,7 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
 
 import java.lang.foreign.AddressLayout;
 import java.lang.foreign.Arena;
@@ -23,32 +24,37 @@ public class Hello {
         SymbolLookup symbolLookup = SymbolLookup.loaderLookup();
 
         final var helloSymbol = symbolLookup.find("hello")
-                .orElseThrow(() -> new Exception("Could not find hello"));             
+                .orElseThrow(() -> new Exception("Could not find hello"));
         final var helloSig = FunctionDescriptor.ofVoid();
         final var hello = Linker.nativeLinker().downcallHandle(helloSymbol, helloSig);
 
         
         final var gethelloSymbol = symbolLookup.find("get_hello")
-                .orElseThrow(() -> new Exception("Could not find hello"));
-        final var gethelloSig = FunctionDescriptor.of(MemoryLayout.sequenceLayout(32, JAVA_BYTE));
+                .orElseThrow(() -> new Exception("Could not find gethello"));
+        final var gethelloSig = FunctionDescriptor.of(ADDRESS);
         final var gethello = Linker.nativeLinker().downcallHandle(gethelloSymbol, gethelloSig);                
 
         try (Arena offHeap = Arena.ofConfined()) {
             // invoke hello
             hello.invoke();
             
-            MemorySegment str = offHeap.allocate(MemoryLayout.sequenceLayout(32, JAVA_BYTE));
+            var layOut  = ValueLayout.JAVA_BYTE;
+            // MemorySegment str = (MemorySegment) offHeap.allocate(layOut);
 
-            // str = (MemorySegment) gethello.invoke();
+            // str = (MemorySegment) 
+            var result = gethello.invoke();
+            System.out.println(result);
+            result = ((MemorySegment) result).reinterpret(layOut.byteSize());
+            
 
             // MethodHandle methodHandle = str.sliceHandle();
             // MemorySegment buffer = offHeap.allocate(64);
     
 
-            byte buffer = (byte) gethello.invokeWithArguments();
-            System.out.println(buffer);
+            // MemorySegment result = (MemorySegment) gethello.invoke();
+            // System.out.println(result);
      
-            byte [] bytes = ((MemorySegment)str).toArray(ValueLayout.JAVA_BYTE);
+            byte [] bytes = ((MemorySegment)result).toArray(JAVA_BYTE);
             var out = new String(bytes);
             System.out.println(out);
 
