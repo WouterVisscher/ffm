@@ -15,3 +15,9 @@ build lib
 gcc -shared -o libhello.so -fPIC hello.c
 gcc -shared -o libstruct.so -fPIC struct.c
 ```
+
+## Jextract
+
+```sh
+/usr/local/bin/jextract/jextract-21/bin/jextract -l proj -t nl.kadaster.proj /usr/include/proj.h
+```

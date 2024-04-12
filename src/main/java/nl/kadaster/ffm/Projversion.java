@@ -1,12 +1,11 @@
 package nl.kadaster.ffm;
 
+import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
-import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
-import java.lang.foreign.GroupLayout;
 import java.lang.foreign.Linker;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemoryLayout.PathElement;
@@ -14,9 +13,7 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
 import java.lang.foreign.StructLayout;
 import java.lang.foreign.SymbolLookup;
-import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
-import java.nio.charset.StandardCharsets;
 
 public class Projversion {
 
@@ -37,11 +34,13 @@ public class Projversion {
                                 JAVA_INT.withName("major"),
                                 JAVA_INT.withName("minor"),
                                 JAVA_INT.withName("patch"),
-                                MemoryLayout.sequenceLayout(32, JAVA_BYTE).withName("release"),
-                                JAVA_CHAR.withName("version"),
-                                JAVA_CHAR.withName("searchpath"),
-                                JAVA_CHAR.withName("paths"),
-                                JAVA_CHAR.withName("path_count")).withName("PJ_INFO");
+                                MemoryLayout.paddingLayout(4L),
+                                ADDRESS.withName("release"),
+                                ADDRESS.withName("version"),
+                                ADDRESS.withName("searchpath"),
+                                ADDRESS.withName("paths"),
+                                JAVA_INT.withName("path_count"),
+                                MemoryLayout.paddingLayout(4L)).withName("PJ_INFO");
 
                 // System.load("/home/wouter/work/repo/github.com/WouterVisscher/ffm/src/main/c/libprojversion.so");
                 System.load("/usr/local/lib/libproj.so");
@@ -58,13 +57,13 @@ public class Projversion {
                         SegmentAllocator allocator = SegmentAllocator.slicingAllocator(arena.allocate(200));
 
                         MemorySegment result = (MemorySegment) proj_version.invokeExact(allocator);
-                        System.out.println(result);
+                        // System.out.println(result);
                         result = result.reinterpret(T_Version.byteSize());
 
                         VarHandle major = T_Version.varHandle(PathElement.groupElement("major"));
                         VarHandle minor = T_Version.varHandle(PathElement.groupElement("minor"));
                         VarHandle patch = T_Version.varHandle(PathElement.groupElement("patch"));
-                        // VarHandle release = T_Version.varHandle(PathElement.groupElement("release"));
+                        VarHandle release = T_Version.varHandle(PathElement.groupElement("release"));
                         VarHandle version = T_Version.varHandle(PathElement.groupElement("version"));
                         VarHandle searchpath = T_Version.varHandle(PathElement.groupElement("searchpath"));
                         VarHandle paths = T_Version.varHandle(PathElement.groupElement("paths"));
@@ -73,18 +72,42 @@ public class Projversion {
                         System.out.println(major.get(result));
                         System.out.println(minor.get(result));
                         System.out.println(patch.get(result));
-                        System.out.println(getFixedString(result, T_Version, "release" ));
-                        System.out.println(version.get(result));
-                        System.out.println(searchpath.get(result));
-                        System.out.println(paths.get(result));
+
+                        // release
+                        MemorySegment ms_release = (MemorySegment) release.get(result);
+                        var r_release = ms_release.reinterpret(MemoryLayout.sequenceLayout(30, JAVA_BYTE).byteSize());
+
+                        byte[] bytes = r_release.toArray(JAVA_BYTE);
+                        var out = new String(bytes);
+                        System.out.println(out);
+
+                        MemorySegment ms_version = (MemorySegment) version.get(result);
+                        var r_version = ms_version.reinterpret(MemoryLayout.sequenceLayout(30, JAVA_BYTE).byteSize());
+
+                        bytes = r_version.toArray(JAVA_BYTE);
+                        out = new String(bytes);
+                        System.out.println(out);
+
+                        MemorySegment ms_searchpath = (MemorySegment) searchpath.get(result);
+                        var r_searchpath = ms_searchpath
+                                        .reinterpret(MemoryLayout.sequenceLayout(128, JAVA_BYTE).byteSize());
+
+                        bytes = r_searchpath.toArray(JAVA_BYTE);
+                        out = new String(bytes);
+                        System.out.println(out);
+
+                        MemorySegment ms_paths = (MemorySegment) paths.get(result);
+
+                        System.out.println(ms_paths.address());
+                        // var r_paths = ms_paths.reinterpret(MemoryLayout.sequenceLayout(0,
+                        // JAVA_BYTE).byteSize());
+
+                        // bytes = r_paths.toArray(JAVA_BYTE);
+                        // out = new String(bytes);
+                        // System.out.println(out);
+
                         System.out.println(path_count.get(result));
                 }
         }
 
-        public static String getFixedString(MemorySegment memorySegment, GroupLayout groupLayout, String name) throws Throwable {
-                MethodHandle methodHandle = groupLayout.sliceHandle(MemoryLayout.PathElement.groupElement(name));
-                MemorySegment namedMemorySegment = (MemorySegment) methodHandle.invokeExact(memorySegment);
-                byte[] namedData = namedMemorySegment.toArray(JAVA_BYTE);
-                return new String(namedData);
-            }
 }

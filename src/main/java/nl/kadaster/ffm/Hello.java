@@ -24,13 +24,13 @@ public class Hello {
         final var gethelloSymbol = symbolLookup.find("get_hello")
                 .orElseThrow(() -> new Exception("Could not find gethello"));
         final var gethelloSig = FunctionDescriptor.of(ADDRESS);
-        final var gethello = Linker.nativeLinker().downcallHandle(gethelloSymbol, gethelloSig);                
+        final var gethello = Linker.nativeLinker().downcallHandle(gethelloSymbol, gethelloSig);
 
         try (Arena offHeap = Arena.ofConfined()) {
             // invoke hello
             // hello.invoke();
 
-            var layOut  = MemoryLayout.sequenceLayout(24, JAVA_BYTE); 
+            var layOut  = MemoryLayout.sequenceLayout(31, JAVA_BYTE); 
             MemorySegment result = (MemorySegment) gethello.invoke();
 
             result = result.reinterpret(layOut.byteSize());
