@@ -3,7 +3,6 @@ package nl.kadaster.ffm;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
-import static java.lang.foreign.ValueLayout.JAVA_INT;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.FunctionDescriptor;
@@ -12,7 +11,6 @@ import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemoryLayout.PathElement;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
-import java.lang.foreign.StructLayout;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.VarHandle;
 
@@ -25,16 +23,24 @@ public class Projversion {
                 SymbolLookup symbolLookup = SymbolLookup.loaderLookup();
 
                 final var versionSymbol = symbolLookup.find("proj_info")
-                                .orElseThrow(() -> new Exception("Could not find get_static_proj_info"));
+                                .orElseThrow(() -> new Exception("Could not find proj_info"));
 
                 final var versionSig = FunctionDescriptor.of(DataTypes.PJ_INFO);
                 final var proj_version = Linker.nativeLinker().downcallHandle(versionSymbol, versionSig);
 
                 final var proj_coordSymbol = symbolLookup.find("proj_coord")
-                                .orElseThrow(() -> new Exception("Could not find get_static_proj_info"));
+                                .orElseThrow(() -> new Exception("Could not find proj_coord"));
 
-                final var proj_coordSig = FunctionDescriptor.of(DataTypes.PJ_COORD, JAVA_DOUBLE, JAVA_DOUBLE, JAVA_DOUBLE, JAVA_DOUBLE);
-                final var proj_coord = Linker.nativeLinker().downcallHandle(proj_coordSymbol, proj_coordSig);                
+                final var proj_coordSig = FunctionDescriptor.of(DataTypes.PJ_COORD, JAVA_DOUBLE, JAVA_DOUBLE,
+                                JAVA_DOUBLE, JAVA_DOUBLE);
+                final var proj_coord = Linker.nativeLinker().downcallHandle(proj_coordSymbol, proj_coordSig);
+
+                final var proj_context_createSymbol = symbolLookup.find("proj_context_create")
+                                .orElseThrow(() -> new Exception("Could not find proj_context_create"));
+
+                final var proj_context_createSig = FunctionDescriptor.of(ADDRESS);
+                final var proj_context_create = Linker.nativeLinker().downcallHandle(proj_context_createSymbol,
+                                proj_context_createSig);
 
                 try (Arena arena = Arena.ofConfined()) {
                         SegmentAllocator allocator = SegmentAllocator.slicingAllocator(arena.allocate(200));
@@ -102,9 +108,34 @@ public class Projversion {
                         System.out.println(yy.get(r_ms_proj_coord));
                         System.out.println(zz.get(r_ms_proj_coord));
                         System.out.println(tt.get(r_ms_proj_coord));
+                        System.out.println(tt.get(r_ms_proj_coord));
 
+                        MemorySegment ms_proj_context = (MemorySegment) proj_context_create.invokeExact();
+                        var r_proj_context = ms_proj_context.reinterpret(DataTypes.PJ_CONTEXT.byteSize());
+
+                        // VarHandle lastFullErrorMessage =
+                        // DataTypes.PJ_CONTEXT.varHandle(PathElement.groupElement("lastFullErrorMessage"));
+                        VarHandle last_errno = DataTypes.PJ_CONTEXT.varHandle(PathElement.groupElement("last_errno"));
+                        VarHandle debug_level = DataTypes.PJ_CONTEXT.varHandle(PathElement.groupElement("debug_level"));
+                        VarHandle errorIfBestTransformationNotAvailableDefault = DataTypes.PJ_CONTEXT.varHandle(
+                                        PathElement.groupElement("errorIfBestTransformationNotAvailableDefault"));
+                        VarHandle warnIfBestTransformationNotAvailableDefault = DataTypes.PJ_CONTEXT.varHandle(
+                                        PathElement.groupElement("warnIfBestTransformationNotAvailableDefault"));
+
+                        // MemorySegment ms_lastFullErrorMessage = (MemorySegment)
+                        // lastFullErrorMessage.get(r_proj_context);
+                        // var r_lastFullErrorMessage =
+                        // ms_lastFullErrorMessage.reinterpret(MemoryLayout.sequenceLayout(30,
+                        // JAVA_BYTE).byteSize());
+                        // bytes = r_lastFullErrorMessage.toArray(JAVA_BYTE);
+                        // out = new String(bytes);
+                        // System.out.println(out);
+
+                        System.out.println(last_errno.get(r_proj_context));
+                        System.out.println(debug_level.get(r_proj_context));
+                        System.out.println(errorIfBestTransformationNotAvailableDefault.get(r_proj_context));
+                        System.out.println(warnIfBestTransformationNotAvailableDefault.get(r_proj_context));
 
                 }
         }
-
 }

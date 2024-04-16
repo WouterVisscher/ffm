@@ -1,6 +1,7 @@
 package nl.kadaster.ffm;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_BOOLEAN;
 import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 
@@ -39,7 +40,9 @@ public class DataTypes {
     static final StructLayout PJ_CONTEXT = MemoryLayout.structLayout(
             ADDRESS.withName("lastFullErrorMessage"),
             JAVA_INT.withName("last_errno"),
-            JAVA_INT.withName("debug_level")).withName("PJ_CONTEXT");
+            JAVA_INT.withName("debug_level"),
+            JAVA_BOOLEAN.withName("errorIfBestTransformationNotAvailableDefault"),
+            JAVA_BOOLEAN.withName("warnIfBestTransformationNotAvailableDefault")).withName("PJ_CONTEXT");
 
     static final StructLayout PJ_LP = MemoryLayout.structLayout(
             JAVA_DOUBLE.withName("lam"),
