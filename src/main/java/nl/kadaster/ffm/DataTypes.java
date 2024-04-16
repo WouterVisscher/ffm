@@ -37,6 +37,11 @@ public class DataTypes {
     // https://github.com/OSGeo/PROJ/blob/master/src/proj_internal.h#L780
     // static final AddressLayout PJ_CONTEXT = ADDRESS.withName("PJ_CONTEXT");
 
+    static final StructLayout PJ =  MemoryLayout.structLayout(
+        ADDRESS.withName("pj_context"),
+        ADDRESS.withName("short_name"),
+        ADDRESS.withName("descr"));
+
     static final StructLayout PJ_CONTEXT = MemoryLayout.structLayout(
             ADDRESS.withName("lastFullErrorMessage"),
             JAVA_INT.withName("last_errno"),
