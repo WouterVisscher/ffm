@@ -44,16 +44,24 @@ public class Projversion {
                                 proj_context_createSig);
 
 
-                final var proj_create_crs_to_crsSymbol = symbolLookup.find("proj_context_create")
-                                .orElseThrow(() -> new Exception("Could not find proj_context_create"));
+                final var proj_create_crs_to_crsSymbol = symbolLookup.find("proj_create_crs_to_crs")
+                                .orElseThrow(() -> new Exception("Could not find proj_create_crs_to_crs"));
 
                 final var proj_create_crs_to_crsSig = FunctionDescriptor.of(ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS);
                 final var proj_create_crs_to_crs = Linker.nativeLinker().downcallHandle(proj_create_crs_to_crsSymbol,
                                 proj_create_crs_to_crsSig);                         
 
+                // PROJ_TRANSFORM
+                final var proj_transSymbol = symbolLookup.find("proj_trans")
+                                .orElseThrow(() -> new Exception("Could not find proj_trans"));
+
+                final var proj_transSig = FunctionDescriptor.of(ADDRESS, ADDRESS, ADDRESS, ADDRESS);
+                final var proj_trans = Linker.nativeLinker().downcallHandle(proj_transSymbol,
+                proj_transSig);      
+
                 try (Arena arena = Arena.ofConfined()) {
                         SegmentAllocator allocator = SegmentAllocator.slicingAllocator(arena.allocate(200));
-
+                        
                         MemorySegment result = (MemorySegment) proj_version.invokeExact(allocator);
                         // System.out.println(result);
                         result = result.reinterpret(DataTypes.PJ_INFO.byteSize());
@@ -117,53 +125,78 @@ public class Projversion {
                         System.out.println(yy.get(r_ms_proj_coord));
                         System.out.println(zz.get(r_ms_proj_coord));
                         System.out.println(tt.get(r_ms_proj_coord));
-                        System.out.println(tt.get(r_ms_proj_coord));
 
                         MemorySegment ms_proj_context = (MemorySegment) proj_context_create.invokeExact();
-                        var r_proj_context = ms_proj_context.reinterpret(DataTypes.PJ_CONTEXT.byteSize());
+                        // var r_proj_context = ms_proj_context.reinterpret(DataTypes.PJ_CONTEXT.byteSize());
 
-                        VarHandle last_errno = DataTypes.PJ_CONTEXT.varHandle(PathElement.groupElement("last_errno"));
-                        VarHandle debug_level = DataTypes.PJ_CONTEXT.varHandle(PathElement.groupElement("debug_level"));
-                        VarHandle errorIfBestTransformationNotAvailableDefault = DataTypes.PJ_CONTEXT.varHandle(
-                                        PathElement.groupElement("errorIfBestTransformationNotAvailableDefault"));
-                        VarHandle warnIfBestTransformationNotAvailableDefault = DataTypes.PJ_CONTEXT.varHandle(
-                                        PathElement.groupElement("warnIfBestTransformationNotAvailableDefault"));
+                        // VarHandle last_errno = DataTypes.PJ_CONTEXT.varHandle(PathElement.groupElement("last_errno"));
+                        // VarHandle debug_level = DataTypes.PJ_CONTEXT.varHandle(PathElement.groupElement("debug_level"));
+                        // VarHandle errorIfBestTransformationNotAvailableDefault = DataTypes.PJ_CONTEXT.varHandle(
+                        //                 PathElement.groupElement("errorIfBestTransformationNotAvailableDefault"));
+                        // VarHandle warnIfBestTransformationNotAvailableDefault = DataTypes.PJ_CONTEXT.varHandle(
+                        //                 PathElement.groupElement("warnIfBestTransformationNotAvailableDefault"));
+                        // VarHandle cpp_context = DataTypes.PJ_CONTEXT.varHandle(
+                        //                 PathElement.groupElement("warnIfBestTransformationNotAvailableDefault"));                                        
 
-                        System.out.println(last_errno.get(r_proj_context));
-                        System.out.println(debug_level.get(r_proj_context));
-                        System.out.println(errorIfBestTransformationNotAvailableDefault.get(r_proj_context));
-                        System.out.println(warnIfBestTransformationNotAvailableDefault.get(r_proj_context));
+                        // // System.out.println(last_errno.get(r_proj_context));
+                        // // System.out.println(debug_level.get(r_proj_context));
+                        // // System.out.println(errorIfBestTransformationNotAvailableDefault.get(r_proj_context));
+                        // // System.out.println(warnIfBestTransformationNotAvailableDefault.get(r_proj_context));
+                        // System.out.println(cpp_context.get(r_proj_context));
 
                         final var sourceCrs = allocator.allocateUtf8String("EPSG:28992");
                         final var targetCrs = allocator.allocateUtf8String("EPSG:9067");
-                        final var NULL = allocator.allocate(JAVA_INT, 0);
+                        final var NULL = MemorySegment.NULL;
 
-                        MemorySegment ms_proj_create_crs_to_crs = (MemorySegment) proj_create_crs_to_crs.invokeExact(NULL, sourceCrs, targetCrs, NULL);
-                        var r_proj_create_crs_to_crs = ms_proj_create_crs_to_crs.reinterpret(DataTypes.PJ.byteSize());
+                        MemorySegment ms_proj_create_crs_to_crs = (MemorySegment) proj_create_crs_to_crs.invokeExact(ms_proj_context, sourceCrs, targetCrs, NULL);
+                        // var r_proj_create_crs_to_crs = ms_proj_create_crs_to_crs.reinterpret(DataTypes.PJ.byteSize());
+                        // System.out.println(r_proj_create_crs_to_crs);
                   
-                        VarHandle pj_context = DataTypes.PJ.varHandle(PathElement.groupElement("pj_context"));
-                        // VarHandle short_name = DataTypes.PJ.varHandle(PathElement.groupElement("short_name"));
-                        // VarHandle descr = DataTypes.PJ.varHandle(PathElement.groupElement("descr"));
+                        // VarHandle pj_context = DataTypes.PJ.varHandle(PathElement.groupElement("pj_context"));
+                        // // VarHandle short_name = DataTypes.PJ.varHandle(PathElement.groupElement("short_name"));
+                        // // VarHandle descr = DataTypes.PJ.varHandle(PathElement.groupElement("descr"));
+
+                        // MemorySegment ms_pj_context = (MemorySegment) pj_context.get(r_proj_create_crs_to_crs);
+                        // var r_pj_context = ms_pj_context
+                        //                 .reinterpret(DataTypes.PJ_CONTEXT.byteSize());
+
+                        // // System.out.println(last_errno.get(r_pj_context));
+                        // // System.out.println(debug_level.get(r_pj_context));
+                        // // System.out.println(errorIfBestTransformationNotAvailableDefault.get(r_pj_context));
+                        // // System.out.println(warnIfBestTransformationNotAvailableDefault.get(r_pj_context));
+                        // System.out.println(cpp_context.get(r_pj_context));
+                                        
+                        // bytes = r_short_name.toArray(JAVA_BYTE);
+                        // out = new String(bytes);
+                        // System.out.println(r_pj_context);   
 
                         // MemorySegment ms_short_name = (MemorySegment) short_name.get(r_proj_create_crs_to_crs);
                         // var r_short_name = ms_short_name
-                        //                 .reinterpret(MemoryLayout.sequenceLayout(8, JAVA_BYTE).byteSize());
+                        //                 .reinterpret(MemoryLayout.sequenceLayout(128, JAVA_BYTE).byteSize());
 
                         // bytes = r_short_name.toArray(JAVA_BYTE);
                         // out = new String(bytes);
+                        // System.out.println(out);
                        
-                        MemorySegment ms_pj_context = (MemorySegment) pj_context.get(r_proj_create_crs_to_crs);
-                        System.out.println(ms_pj_context);
-                        var r_pj_context = ms_pj_context
-                                        .reinterpret(DataTypes.PJ_CONTEXT.byteSize());                        
-                        System.out.println(last_errno.get(r_pj_context));
-                        System.out.println(debug_level.get(r_pj_context));
+                        // MemorySegment ms_descr = (MemorySegment) descr.get(r_proj_create_crs_to_crs);
+                        // var r_descr = ms_descr
+                        //                 .reinterpret(MemoryLayout.sequenceLayout(32, JAVA_BYTE).byteSize());
 
+                        // bytes = r_descr.toArray(JAVA_BYTE);
+                        // out = new String(bytes);
+                        // System.out.println(out);
 
+                        final var fwd = allocator.allocate(JAVA_INT, 1);
+                        //final int fwd = 1;
 
+                        MemorySegment ms_proj_trans = (MemorySegment) proj_trans.invokeExact(ms_proj_create_crs_to_crs, fwd, ms_proj_coord);
+                        System.out.println(ms_proj_trans);
+                        // var r_proj_trans = ms_proj_trans
+                        //                  .reinterpret(DataTypes.PJ_COORD.byteSize());
 
-                        // System.out.println(short_name.get(r_proj_create_crs_to_crs));
-                        // System.out.println(descr.get(r_proj_create_crs_to_crs));
+                        // System.out.println(xx.get(r_proj_trans));
+                        // System.out.println(yy.get(r_proj_trans));
+                        // System.out.println(zz.get(r_proj_trans));
                 }
         }
 }

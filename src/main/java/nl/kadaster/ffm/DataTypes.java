@@ -42,12 +42,18 @@ public class DataTypes {
         ADDRESS.withName("short_name"),
         ADDRESS.withName("descr"));
 
+    // https://github.com/OSGeo/PROJ/blob/master/src/proj_internal.h#L781
+    // https://github.com/OSGeo/PROJ/blob/master/src/ctx.cpp#L155
     static final StructLayout PJ_CONTEXT = MemoryLayout.structLayout(
             ADDRESS.withName("lastFullErrorMessage"),
             JAVA_INT.withName("last_errno"),
             JAVA_INT.withName("debug_level"),
             JAVA_BOOLEAN.withName("errorIfBestTransformationNotAvailableDefault"),
-            JAVA_BOOLEAN.withName("warnIfBestTransformationNotAvailableDefault")).withName("PJ_CONTEXT");
+            JAVA_BOOLEAN.withName("warnIfBestTransformationNotAvailableDefault"),
+            MemoryLayout.paddingLayout(6L),
+            ADDRESS.withName("logger"),
+            ADDRESS.withName("logger_app_data"),
+            ADDRESS.withName("cpp_context")).withName("PJ_CONTEXT");
 
     static final StructLayout PJ_LP = MemoryLayout.structLayout(
             JAVA_DOUBLE.withName("lam"),

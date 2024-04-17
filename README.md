@@ -3,6 +3,8 @@
 ## C
 
 ```sh
+cd /src/main/c
+
 gcc proj_version.cpp -lproj -o proj_version -lstdc++
 ./proj_version
 
@@ -10,6 +12,9 @@ gcc proj_example.c -lproj -o proj_example -lstdc++
 ./proj_example
 
 gcc -shared -o libprojversion.so -fPIC proj_version.cpp -lproj -lstdc++
+
+gcc enum.c  -o enum -lstdc++
+./enum
 ```
 
 build lib
