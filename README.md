@@ -6,6 +6,9 @@
 gcc proj_version.cpp -lproj -o proj_version -lstdc++
 ./proj_version
 
+gcc proj_example.c -lproj -o proj_example -lstdc++
+./proj_example
+
 gcc -shared -o libprojversion.so -fPIC proj_version.cpp -lproj -lstdc++
 ```
 
