@@ -9,8 +9,8 @@ public class Stdlen {
   public static void main(final String[] args) throws Throwable {
     final var linker = Linker.nativeLinker();
     final var cStdLib = linker.defaultLookup();
-    final var strlenSymbol = cStdLib.find("strlen")
-        .orElseThrow(() -> new Exception("Could not find strlen"));
+    final var strlenSymbol =
+        cStdLib.find("strlen").orElseThrow(() -> new Exception("Could not find strlen"));
     // strlen takes a pointer and returns an size_t which afaik is a Java long on a
     // 64bit machine
     final var strlenSig = FunctionDescriptor.of(ValueLayout.JAVA_LONG, ValueLayout.ADDRESS);
