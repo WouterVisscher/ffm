@@ -5,19 +5,20 @@ enum MY_ENUM {
     B = 2,
     C = 3 
 };
+typedef enum MY_ENUM MY_ENUM;
 
 int getenum(void)
 {
     return B;
 }
 
-void setenum(enum MY_ENUM abc)
+void setenum(MY_ENUM abc)
 {
-    printf("%d\n", abc);
+    printf("c: %d\n", abc);
 }
 
 int main(void)
 {
-    enum MY_ENUM e = getenum();
+    MY_ENUM e = getenum();
     setenum(e);
 }
