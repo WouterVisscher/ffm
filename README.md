@@ -23,6 +23,18 @@ build lib
 gcc -shared -o libhello.so -fPIC hello.c
 gcc -shared -o libstruct.so -fPIC struct.c
 gcc -shared -o libenum.so -fPIC enum.c
+gcc -shared -o libprojproxyapi.so -fPIC projproxyapi.c
+```
+
+## Debug
+
+```sh
+ps -ef
+gdb -p <pidnr> /usr/local/lib/libproj.so
+
+add-symbol-file /usr/local/lib/libproj.so
+break proj_context_create
+cont
 ```
 
 ## Jextract
