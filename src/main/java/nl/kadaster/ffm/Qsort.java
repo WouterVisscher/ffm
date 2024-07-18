@@ -43,7 +43,7 @@ public class Qsort {
     try (Arena offHeap = Arena.ofConfined()) {
       // 9. Allocate off-heap memory and store unsorted array in it
       int[] unsorted = createUnsortedArray();
-      MemorySegment arrayAddress = offHeap.allocateArray(ValueLayout.JAVA_INT, unsorted);
+      MemorySegment arrayAddress = offHeap.allocateFrom(ValueLayout.JAVA_INT, unsorted);
 
       // 10. Allocate off-head memory for an "upcall stub" to the comparison function
       MemorySegment compareAddress = linker.upcallStub(compareHandle, compareDescriptor, offHeap);

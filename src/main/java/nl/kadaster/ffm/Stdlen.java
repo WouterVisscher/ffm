@@ -19,7 +19,7 @@ public class Stdlen {
     // arena is a FFM concept that models memory segment lifecycle
     final var arena = Arena.ofAuto();
     // a pointer to a C string
-    final var testStr = arena.allocateUtf8String("example");
+    final var testStr = arena.allocateFrom("example");
     // invoke strlen
     final var result = strlen.invokeWithArguments(testStr);
     // 7

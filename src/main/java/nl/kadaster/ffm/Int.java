@@ -9,15 +9,15 @@ public class Int {
   private static final int COUNT = 100;
 
   public static void main(String[] args) {
-    MemorySegment numbers = Arena.global().allocateArray(ValueLayout.JAVA_INT, COUNT);
+    MemorySegment numbers = Arena.ofAuto().allocate(4 * COUNT);
 
     ThreadLocalRandom random = ThreadLocalRandom.current();
     for (int i = 0; i < COUNT; i++) {
-      numbers.setAtIndex(ValueLayout.JAVA_INT, i, random.nextInt());
+      numbers.set(ValueLayout.JAVA_INT, i * 4, random.nextInt());
     }
 
     for (int j = 0; j < COUNT; j++) {
-      int number = numbers.getAtIndex(ValueLayout.JAVA_INT, j);
+      int number = numbers.get(ValueLayout.JAVA_INT, j * 4);
       System.out.println(number);
     }
   }

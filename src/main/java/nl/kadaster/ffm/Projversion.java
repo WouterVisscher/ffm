@@ -149,8 +149,8 @@ public class Projversion {
       // System.out.println(warnIfBestTransformationNotAvailableDefault.get(r_proj_context));
       // System.out.println(cpp_context.get(r_proj_context));
 
-      final var sourceCrs = allocator.allocateUtf8String("EPSG:28992");
-      final var targetCrs = allocator.allocateUtf8String("EPSG:9067");
+      final var sourceCrs = allocator.allocateFrom("EPSG:28992");
+      final var targetCrs = allocator.allocateFrom("EPSG:9067");
       final var NULL = MemorySegment.NULL;
 
       MemorySegment ms_proj_create_crs_to_crs = (MemorySegment) proj_create_crs_to_crs

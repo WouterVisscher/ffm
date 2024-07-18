@@ -28,8 +28,8 @@ public class Proj {
 
       // MemorySegment ctx = arena.allocate(ADDRESS, context);
 
-      final var sourceCrs = allocator.allocateUtf8String("EPSG:28992");
-      final var targetCrs = allocator.allocateUtf8String("EPSG:9067");
+      final var sourceCrs = allocator.allocateFrom("EPSG:28992");
+      final var targetCrs = allocator.allocateFrom("EPSG:9067");
       final var NULL = MemorySegment.NULL;
 
       MemorySegment pj = (MemorySegment) api.pj.invokeExact(context, sourceCrs, targetCrs, NULL);
