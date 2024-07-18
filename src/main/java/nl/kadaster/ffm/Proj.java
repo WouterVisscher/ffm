@@ -1,8 +1,10 @@
 package nl.kadaster.ffm;
 
 import java.lang.foreign.Arena;
+import java.lang.foreign.MemoryLayout.PathElement;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SegmentAllocator;
+import java.lang.invoke.VarHandle;
 
 
 public class Proj {
@@ -47,6 +49,21 @@ public class Proj {
       // System.out.println(out);
 
       // System.out.println(DataTypes.WarnIfBestTransformationNotAvailableDefault.get(pj_ctx));
+
+      MemorySegment pt = (MemorySegment) api.transform.invoke(allocator, pj, 1, coord);
+      System.out.println("pt: " + pt);
+
+      var newpoint = pt.reinterpret(DataTypes.PJ_COORD.byteSize());
+
+      VarHandle xx = DataTypes.PJ_COORD.varHandle(PathElement.groupElement("x"));
+      VarHandle yy = DataTypes.PJ_COORD.varHandle(PathElement.groupElement("y"));
+      VarHandle zz = DataTypes.PJ_COORD.varHandle(PathElement.groupElement("z"));
+      VarHandle tt = DataTypes.PJ_COORD.varHandle(PathElement.groupElement("t"));
+
+      System.out.println(xx.get(newpoint, 0L));
+      System.out.println(yy.get(newpoint, 0L));
+      System.out.println(zz.get(newpoint, 0L));
+      System.out.println(tt.get(newpoint, 0L));
     }
   }
 }

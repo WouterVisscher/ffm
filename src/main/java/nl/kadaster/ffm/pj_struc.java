@@ -37,9 +37,9 @@ public class pj_struc {
       VarHandle major = T_Version.varHandle(PathElement.groupElement("major"));
       VarHandle version = T_Version.varHandle(PathElement.groupElement("version"));
 
-      System.out.println(major.get(result));
+      System.out.println(major.get(result, 0L));
 
-      MemorySegment r_version = (MemorySegment) version.get(result);
+      MemorySegment r_version = (MemorySegment) version.get(result, 0L);
       r_version = r_version.reinterpret(MemoryLayout.sequenceLayout(30, JAVA_BYTE).byteSize());
 
       byte[] bytes = r_version.toArray(JAVA_BYTE);

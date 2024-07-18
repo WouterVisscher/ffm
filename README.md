@@ -40,5 +40,5 @@ cont
 ## Jextract
 
 ```sh
-/usr/local/bin/jextract/jextract-21/bin/jextract -l proj -t nl.kadaster.proj /usr/include/proj.h
+/usr/local/bin/jextract/jextract-22/bin/jextract -l proj -t nl.kadaster.proj /usr/include/proj.h
 ```

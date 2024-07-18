@@ -54,7 +54,8 @@ public class Projversion {
     final var proj_transSymbol = symbolLookup.find("proj_trans")
         .orElseThrow(() -> new Exception("Could not find proj_trans"));
 
-    final var proj_transSig = FunctionDescriptor.of(DataTypes.PJ_COORD, ADDRESS, JAVA_INT, ADDRESS);
+        // PJ_COORD proj_trans(PJ *P, PJ_DIRECTION direction, PJ_COORD coord)
+    final var proj_transSig = FunctionDescriptor.of(DataTypes.PJ_COORD, ADDRESS, JAVA_INT, DataTypes.PJ_COORD);
     final var proj_trans = Linker.nativeLinker().downcallHandle(proj_transSymbol, proj_transSig);
 
     try (Arena arena = Arena.ofConfined()) {
@@ -73,26 +74,26 @@ public class Projversion {
       VarHandle paths = DataTypes.PJ_INFO.varHandle(PathElement.groupElement("paths"));
       VarHandle path_count = DataTypes.PJ_INFO.varHandle(PathElement.groupElement("path_count"));
 
-      System.out.println(major.get(result));
-      System.out.println(minor.get(result));
-      System.out.println(patch.get(result));
+      System.out.println(major.get(result, 0L));
+      System.out.println(minor.get(result, 0L));
+      System.out.println(patch.get(result, 0L));
 
       // release
-      MemorySegment ms_release = (MemorySegment) release.get(result);
+      MemorySegment ms_release = (MemorySegment) release.get(result, 0L);
       var r_release = ms_release.reinterpret(MemoryLayout.sequenceLayout(30, JAVA_BYTE).byteSize());
 
       byte[] bytes = r_release.toArray(JAVA_BYTE);
       var out = new String(bytes);
       System.out.println(out);
 
-      MemorySegment ms_version = (MemorySegment) version.get(result);
+      MemorySegment ms_version = (MemorySegment) version.get(result, 0L);
       var r_version = ms_version.reinterpret(MemoryLayout.sequenceLayout(30, JAVA_BYTE).byteSize());
 
       bytes = r_version.toArray(JAVA_BYTE);
       out = new String(bytes);
       System.out.println(out);
 
-      MemorySegment ms_searchpath = (MemorySegment) searchpath.get(result);
+      MemorySegment ms_searchpath = (MemorySegment) searchpath.get(result, 0L);
       var r_searchpath =
           ms_searchpath.reinterpret(MemoryLayout.sequenceLayout(128, JAVA_BYTE).byteSize());
 
@@ -100,10 +101,10 @@ public class Projversion {
       out = new String(bytes);
       System.out.println(out);
 
-      MemorySegment ms_paths = (MemorySegment) paths.get(result);
+      MemorySegment ms_paths = (MemorySegment) paths.get(result, 0L);
 
       System.out.println(ms_paths.address());
-      System.out.println(path_count.get(result));
+      System.out.println(path_count.get(result, 0L));
 
       /// Create proj_coord
       final var x = 155000d;
@@ -119,10 +120,10 @@ public class Projversion {
       VarHandle zz = DataTypes.PJ_COORD.varHandle(PathElement.groupElement("z"));
       VarHandle tt = DataTypes.PJ_COORD.varHandle(PathElement.groupElement("t"));
 
-      System.out.println(xx.get(r_ms_proj_coord));
-      System.out.println(yy.get(r_ms_proj_coord));
-      System.out.println(zz.get(r_ms_proj_coord));
-      System.out.println(tt.get(r_ms_proj_coord));
+      System.out.println(xx.get(r_ms_proj_coord, 0L));
+      System.out.println(yy.get(r_ms_proj_coord, 0L));
+      System.out.println(zz.get(r_ms_proj_coord, 0L));
+      System.out.println(tt.get(r_ms_proj_coord, 0L));
 
       MemorySegment ms_proj_context = (MemorySegment) proj_context_create.invokeExact();
       // var r_proj_context =
@@ -202,9 +203,14 @@ public class Projversion {
 
       final int fwd = 1;
 
-      MemorySegment ms_proj_trans =
-          (MemorySegment) proj_trans.invoke(ms_proj_create_crs_to_crs, fwd, r_ms_proj_coord);
-      System.out.println(ms_proj_trans);
+    //   MemorySegment newpoint = allocator.allocate(40);
+
+    // PJ_COORD proj_trans(PJ *P, PJ_DIRECTION direction, PJ_COORD coord)
+
+        MemorySegment pt = (MemorySegment) proj_trans.invoke(ms_proj_create_crs_to_crs, fwd, r_ms_proj_coord);
+        System.out.println("proj_trans: " + pt);
+
+    //   System.out.println(newpoint);
       // var r_proj_trans = ms_proj_trans
       // .reinterpret(DataTypes.PJ_COORD.byteSize());
 
