@@ -54,8 +54,9 @@ public class Projversion {
     final var proj_transSymbol = symbolLookup.find("proj_trans")
         .orElseThrow(() -> new Exception("Could not find proj_trans"));
 
-        // PJ_COORD proj_trans(PJ *P, PJ_DIRECTION direction, PJ_COORD coord)
-    final var proj_transSig = FunctionDescriptor.of(DataTypes.PJ_COORD, ADDRESS, JAVA_INT, DataTypes.PJ_COORD);
+    // PJ_COORD proj_trans(PJ *P, PJ_DIRECTION direction, PJ_COORD coord)
+    final var proj_transSig =
+        FunctionDescriptor.of(DataTypes.PJ_COORD, ADDRESS, JAVA_INT, DataTypes.PJ_COORD);
     final var proj_trans = Linker.nativeLinker().downcallHandle(proj_transSymbol, proj_transSig);
 
     try (Arena arena = Arena.ofConfined()) {
@@ -203,20 +204,14 @@ public class Projversion {
 
       final int fwd = 1;
 
-    //   MemorySegment newpoint = allocator.allocate(40);
+      MemorySegment pt =
+          (MemorySegment) proj_trans.invoke(allocator, ms_proj_create_crs_to_crs, fwd, r_ms_proj_coord);
+      System.out.println("proj_trans: " + pt);
 
-    // PJ_COORD proj_trans(PJ *P, PJ_DIRECTION direction, PJ_COORD coord)
-
-        MemorySegment pt = (MemorySegment) proj_trans.invoke(ms_proj_create_crs_to_crs, fwd, r_ms_proj_coord);
-        System.out.println("proj_trans: " + pt);
-
-    //   System.out.println(newpoint);
-      // var r_proj_trans = ms_proj_trans
-      // .reinterpret(DataTypes.PJ_COORD.byteSize());
-
-      // System.out.println(xx.get(r_proj_trans));
-      // System.out.println(yy.get(r_proj_trans));
-      // System.out.println(zz.get(r_proj_trans));
+      System.out.println(xx.get(pt, 0L));
+      System.out.println(yy.get(pt, 0L));
+      System.out.println(zz.get(pt, 0L));
+      System.out.println(tt.get(pt, 0L));
     }
   }
 }
